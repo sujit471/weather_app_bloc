@@ -53,7 +53,7 @@ android {
     }
 }
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.7.1"  // Ensure this matches the Kotlin version
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.0"  // Ensure this matches the Kotlin version
 }
 
 flutter {

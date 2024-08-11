@@ -1,37 +1,44 @@
+
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
-import'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:weather_app_bloc/Constants/space.dart';
-import 'package:weather_app_bloc/constants/custom_text.dart';
-import 'package:weather_app_bloc/widgets/items_in_row.dart';
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:weather_app_bloc/bloc/weather_bloc.dart';
+import 'package:weather_app_bloc/bloc/weather_state.dart';
 
+import '../Constants/space.dart';
+import '../constants/custom_text.dart';
+import '../widgets/items_in_row.dart';
+
+
+class HomeScreen extends StatelessWidget {
+
+   const HomeScreen({super.key});
+
+  // String formattedDateTime = DateFormat('yyyy-MM-dd – kk:mm').format(now);
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black,
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(50),
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          systemOverlayStyle:  const SystemUiOverlayStyle(
-            statusBarBrightness: Brightness.dark
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarBrightness: Brightness.dark,
           ),
         ),
       ),
-      body:  Padding(
-        padding: const EdgeInsets.fromLTRB(40, 1.2*kToolbarHeight, 40, 20),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(40, 1.2 * kToolbarHeight, 40, 20),
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
-          child:  Stack(
+          child: Stack(
             children: [
               Align(
-                alignment: AlignmentDirectional(3, -0.3),
+                alignment: const AlignmentDirectional(3, -0.3),
                 child: Container(
                   height: 300,
                   width: 300,
@@ -42,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Align(
-                alignment: AlignmentDirectional(-3, -0.3),
+                alignment: const AlignmentDirectional(-3, -0.3),
                 child: Container(
                   height: 300,
                   width: 300,
@@ -62,56 +69,67 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              BackdropFilter(filter: ImageFilter.blur(sigmaX : 100.0,sigmaY:100),
+              BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100),
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.transparent),
+                  decoration: const BoxDecoration(color: Colors.transparent),
                 ),
               ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width,
-                height : MediaQuery.of(context).size.height ,
-           child:  Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               const Text('Align - province',style : TextStyle(
-                 color: Colors.white,
-                 fontWeight: FontWeight.w300,
-               )),
-               Height(10),
-               Text('Good Morning',style: CustomText.header()),
-               Height(10),
-               Image.asset(
-                 height: 200,
-                 'assets/1.png'
-               ),
-               Center(child: Text('Thunderstorm',style: CustomText.header())),
-               Height(10),
-               Center(child: Text('Friday 16 - 10 am ',style: CustomText.header())),
-               Height(20),
-               const Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 children: [
-                   ItemsInRow(text:'Sunrise' ,image: 'assets/2.png',time: '5.42',),
-                   ItemsInRow(text:'Sunset' ,image: 'assets/4.png',time: '6.00',),
-                 ],
-               ),
-               Height(20),
-               const Row(
-                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                 children: [
-                   ItemsInRow(text:'Temperature' ,image: 'assets/8.png'),
-                   ItemsInRow(text:'Humidity' ,image: 'assets/11.png'),
-                 ],
-               ),
+              BlocBuilder<WeatherBloc, WeatherState>(
+                builder: (context, state) {
 
-             ],
-
-           ),
+                  if (state is WeatherInitial) {
+                    return const Center(child: CircularProgressIndicator()); // Or another loading indicator
+                  } else if (state is WeatherSuccess) {
+                    return SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Align - province', style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w300,
+                          )),
+                          Height(10),
+                          Text('Good Morning', style: CustomText.header()),
+                          Height(10),
+                          Image.asset(
+                            height: 200,
+                            'assets/1.png',
+                          ),
+                          Center(child: Text('${state.weather.temperature}', style: CustomText.header())),
+                          Height(10),
+                          Center(child: Text('', style: CustomText.header())),
+                          Height(20),
+                         Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ItemsInRow(text: '${state.weather.country}', image: 'assets/2.png', time: '5.42'),
+                              ItemsInRow(text: 'Sunset', image: 'assets/4.png', time: '6.00'),
+                            ],
+                          ),
+                          Height(20),
+                          const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ItemsInRow(text: 'Temperature', image: 'assets/8.png'),
+                              ItemsInRow(text: 'Humidity', image: 'assets/11.png'),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    // Handle other states or errors
+                    return const Center(child: Text('Something went wrong.', style: TextStyle(color: Colors.white)));
+                  }
+                },
               ),
             ],
           ),
         ),
-      ) ,
+      ),
     );
   }
 }
