@@ -1,17 +1,16 @@
-buildscript {
-    ext.kotlin_version = '1.9.0'  // Ensure this matches the Kotlin version used in your project
-
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'  // Update to the latest compatible Gradle plugin version
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"  // Use the specified Kotlin version
-        // Remove the following line
-        // classpath "dev.flutter:flutter-gradle-plugin:1.0.0"  // Remove this line
-    }
-}
+//buildscript {
+//    ext.kotlin_version = '1.7.1'
+//
+//    repositories {
+//        google()
+//        mavenCentral()
+//    }
+//
+//    dependencies {
+//        classpath 'com.android.tools.build:gradle:7.4.2'
+//        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+//    }
+//}
 
 allprojects {
     repositories {

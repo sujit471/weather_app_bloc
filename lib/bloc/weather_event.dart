@@ -13,3 +13,10 @@ const FetchWeather(this.position);
 @override
   List<Object> get props => [position];
 }
+class FetchWeatherByCity extends WeatherEvent {
+  final String cityName;
+  const FetchWeatherByCity(this.cityName);
+  @override
+  List<Object> get props => [cityName];
+}
+class ResetWeatherState extends WeatherEvent {}

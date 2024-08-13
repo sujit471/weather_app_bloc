@@ -20,3 +20,9 @@ class WeatherSuccess extends WeatherState{
   @override
   List<Object> get props =>[weather];
 }
+class WeatherFailure extends WeatherState{
+
+}
+class ResetWeather extends WeatherState{
+
+}

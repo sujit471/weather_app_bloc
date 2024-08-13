@@ -19,7 +19,7 @@ class ItemsInRow extends StatelessWidget {
         if (image != null)
           Image.asset(
             image!,
-            height: 90,
+            height: 60,
           ),
         const SizedBox(width: 5), // Replaces Width(5)
         Column(

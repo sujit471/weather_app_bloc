@@ -1,28 +1,35 @@
-
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app_bloc/bloc/weather_bloc.dart';
 import 'package:weather_app_bloc/bloc/weather_state.dart';
-
 import '../Constants/space.dart';
+import '../bloc/weather_event.dart';
 import '../constants/custom_text.dart';
 import '../widgets/items_in_row.dart';
-
+import '../widgets/weather_icon.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-   const HomeScreen({super.key});
+  String formatTime(DateTime dateTime) {
+    return DateFormat('hh:mm a').format(dateTime);
+  }
 
-  // String formattedDateTime = DateFormat('yyyy-MM-dd – kk:mm').format(now);
   @override
   Widget build(BuildContext context) {
+    TextEditingController _cityController = TextEditingController();
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(50),
+        preferredSize: const Size.fromHeight(5),
         child: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -31,104 +38,199 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(40, 1.2 * kToolbarHeight, 40, 20),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height,
-          child: Stack(
+      body: Stack(
+        children: [
+          // Background circles
+          Positioned(
+            top: -150,
+            left: -150,
+            child: Container(
+              height: 300,
+              width: 300,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.deepPurple,
+              ),
+            ),
+          ),
+          Positioned(
+            top: -150,
+            right: -150,
+            child: Container(
+              height: 300,
+              width: 300,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.deepPurple,
+              ),
+            ),
+          ),
+          // Background orange container with blur
+          Positioned.fill(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
+              child: Container(
+                color: Colors.orangeAccent.withOpacity(0.3),
+              ),
+            ),
+          ),
+          // Black gradient at the bottom
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Weather content
+          Column(
             children: [
-              Align(
-                alignment: const AlignmentDirectional(3, -0.3),
-                child: Container(
-                  height: 300,
-                  width: 300,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(-3, -0.3),
-                child: Container(
-                  height: 300,
-                  width: 300,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-              ),
-              Align(
-                alignment: const AlignmentDirectional(0, -1.2),
-                child: Container(
-                  height: 300,
-                  width: 500,
-                  decoration: const BoxDecoration(
-                    color: Colors.orangeAccent,
-                  ),
-                ),
-              ),
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100),
-                child: Container(
-                  decoration: const BoxDecoration(color: Colors.transparent),
-                ),
-              ),
-              BlocBuilder<WeatherBloc, WeatherState>(
-                builder: (context, state) {
-
-                  if (state is WeatherInitial) {
-                    return const Center(child: CircularProgressIndicator()); // Or another loading indicator
-                  } else if (state is WeatherSuccess) {
-                    return SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Align - province', style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w300,
-                          )),
-                          Height(10),
-                          Text('Good Morning', style: CustomText.header()),
-                          Height(10),
-                          Image.asset(
-                            height: 200,
-                            'assets/1.png',
-                          ),
-                          Center(child: Text('${state.weather.temperature}', style: CustomText.header())),
-                          Height(10),
-                          Center(child: Text('', style: CustomText.header())),
-                          Height(20),
-                         Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: BlocBuilder<WeatherBloc, WeatherState>(
+                      builder: (context, state) {
+                        if (state is WeatherInitial) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else if (state is Weatherloading) {
+                          return Center(
+                            child: Lottie.asset(
+                              'assets/searching.json',
+                              height: 200,
+                            ),
+                          );
+                        } else if (state is WeatherSuccess) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ItemsInRow(text: '${state.weather.country}', image: 'assets/2.png', time: '5.42'),
-                              ItemsInRow(text: 'Sunset', image: 'assets/4.png', time: '6.00'),
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.deepPurple.withOpacity(0.3),
+                                      Colors.orangeAccent.withOpacity(0.3),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: TextField(
+                                  controller: _cityController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                    hintText: 'Enter city name',
+                                    hintStyle: const TextStyle(color: Colors.white54),
+                                    labelStyle: const TextStyle(color: Colors.white54),
+                                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      borderSide: const BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(color: Colors.white),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 5),
+                                  ),
+                                  onSubmitted: (cityName) {
+                                    context
+                                        .read<WeatherBloc>()
+                                        .add(FetchWeatherByCity(cityName));
+                                  },
+                                ),
+                              ),
+                              Height(30),
+                              Text(
+                                'Location 📍: ${state.weather.areaName}',
+                                style: CustomText.subheader(),
+                              ),
+                              Height(10),
+                              Center(
+                                  child: getWeatherIcon(
+                                      state.weather.weatherConditionCode!)),
+                              Height(10),
+                              Center(
+                                child: Text(
+                                  '${state.weather.temperature}',
+                                  style: CustomText.header(),
+                                ),
+                              ),
+                              Height(10),
+                              Center(
+                                child: Text(
+                                  '${state.weather.weatherMain}',
+                                  style: CustomText.header(),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Center(
+                                child: Text(
+                                  formattedDate,
+                                  style: CustomText.subheader(),
+                                ),
+                              ),
+                              Height(100),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ItemsInRow(
+                                    text: formatTime(state.weather.sunrise!),
+                                    image: 'assets/11.png',
+                                    time: 'Sunrise',
+                                  ),
+                                  ItemsInRow(
+                                    text: formatTime(state.weather.sunset!),
+                                    image: 'assets/12.png',
+                                    time: 'Sunset',
+                                  ),
+                                ],
+                              ),
+                              Height(20),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ItemsInRow(
+                                    text: '${state.weather.tempMax}',
+                                    image: 'assets/13.png',
+                                    time: 'Max Temp',
+                                  ),
+                                  ItemsInRow(
+                                    text: '${state.weather.tempMin}',
+                                    image: 'assets/14.png',
+                                    time: 'Min temp',
+                                  ),
+                                ],
+                              ),
                             ],
-                          ),
-                          Height(20),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ItemsInRow(text: 'Temperature', image: 'assets/8.png'),
-                              ItemsInRow(text: 'Humidity', image: 'assets/11.png'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    // Handle other states or errors
-                    return const Center(child: Text('Something went wrong.', style: TextStyle(color: Colors.white)));
-                  }
-                },
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
