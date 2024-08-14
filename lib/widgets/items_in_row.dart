@@ -34,7 +34,7 @@ class ItemsInRow extends StatelessWidget {
             if(text !=null)
              Text(
               text!,
-              style: CustomText.subheader(), // Customize as per your needs
+              style: CustomText.subheader(),
             ),
           ],
         ),
