@@ -6,20 +6,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app_bloc/bloc/weather_bloc.dart';
 import 'package:weather_app_bloc/bloc/weather_state.dart';
+import 'package:weather_app_bloc/widgets/weather_card.dart';
 import '../Constants/space.dart';
 import '../bloc/weather_event.dart';
 import '../constants/custom_text.dart';
 import '../widgets/items_in_row.dart';
 import '../widgets/weather_icon.dart';
 import 'package:lottie/lottie.dart';
-
+import 'package:animated_text_kit/animated_text_kit.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
   String formatTime(DateTime dateTime) {
     return DateFormat('hh:mm a').format(dateTime);
   }
-
   @override
   Widget build(BuildContext context) {
     TextEditingController _cityController = TextEditingController();
@@ -28,19 +27,12 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      // appBar: PreferredSize(
-      //   preferredSize: const Size.fromHeight(5),
-      //   child: AppBar(
-      //     backgroundColor: Colors.red,
-      //     elevation: 0,
-      //     systemOverlayStyle: const SystemUiOverlayStyle(
-      //       statusBarBrightness: Brightness.dark,
-      //     ),
-      //   ),
-      // ),
+appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
+    child: AppBar(
+      backgroundColor: Colors.black,
+    )),
       body: Stack(
         children: [
-          // Background circles
           Positioned(
             top: -150,
             left: -150,
@@ -65,7 +57,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Background orange container with blur
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
@@ -74,7 +65,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Black gradient at the bottom
           Positioned.fill(
             child: Align(
               alignment: Alignment.bottomCenter,
@@ -93,7 +83,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Weather content
           Column(
             children: [
               Expanded(
@@ -104,14 +93,32 @@ class HomeScreen extends StatelessWidget {
                       builder: (context, state) {
                         if (state is WeatherInitial) {
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            // child: CircularProgressIndicator(),
+                            child: Text("Welcome to Weather App "),
                           );
                         } else if (state is Weatherloading) {
-                          return Center(
-                            child: Lottie.asset(
-                              'assets/searching.json',
-                              height: 200,
-                            ),
+                          return Column(
+                            children: [
+                              Center(
+                                child: Lottie.asset(
+                                  'assets/searching.json',
+                                  height: 200,
+                                ),
+                              ),
+                              Height(90),
+                             DefaultTextStyle(
+                              style: const TextStyle(
+                              fontSize: 30.0,
+                              color: Colors.white,
+                              fontFamily: 'Agne',
+                              ),
+                              child: AnimatedTextKit(
+                              animatedTexts: [
+                              TypewriterAnimatedText('Searching.....'),
+                              ],
+                              ),
+                              ),
+                            ],
                           );
                         } else if (state is WeatherSuccess) {
                           return Column(
@@ -215,6 +222,60 @@ class HomeScreen extends StatelessWidget {
                                     text: '${state.weather.tempMin}',
                                     image: 'assets/14.png',
                                     time: 'Min temp',
+                                  ),
+                                ],
+                              ),
+                              Height(20),
+                               Row(
+                                 children: [
+                                   WeatherCard(state: '${state.weather.humidity} g/kg',
+                                     name: 'humidity',
+                                     icon: Icons.cloud,
+                                     color: Colors.grey,
+                                     size: 50,
+                                   ),
+                                  Width(20),
+                                   WeatherCard(state: '${state.weather.tempFeelsLike}',
+                                     name: 'Feels Like',
+                                     icon: Icons.sunny,
+                                     color: Colors.orange,
+                                     size: 40,
+                                   ),
+                                 ],
+                               ),
+                              Height(20),
+                              Row(
+                                children: [
+                                  WeatherCard(state: '${state.weather.pressure} Pa',
+                                    name: 'Pressure',
+                                    icon: Icons.access_time_outlined,
+                                    color: Colors.red,
+                                    size: 50,
+                                  ),
+                                  Width(20),
+                                  WeatherCard(state: '${state.weather.windSpeed} km/hr',
+                                    name: 'Wind',
+                                    icon: Icons.flag_rounded,
+                                    color: Colors.red,
+                                    size: 40,
+                                  ),
+                                ],
+                              ),
+                              Height(20),
+                              Row(
+                                children: [
+                                  WeatherCard(state: '${state.weather.rainLast3Hours} ',
+                                    name: 'Rain Last 3 Hours',
+                                    icon: Icons.grain,
+                                    color: Colors.blue,
+                                    size: 50,
+                                  ),
+                                  Width(20),
+                                  WeatherCard(state: '${state.weather.cloudiness} oktas',
+                                    name: 'Cloudiness',
+                                    icon: Icons.flag_rounded,
+                                    color: Colors.red,
+                                    size: 40,
                                   ),
                                 ],
                               ),
