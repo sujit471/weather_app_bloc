@@ -28,16 +28,16 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(5),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          systemOverlayStyle: const SystemUiOverlayStyle(
-            statusBarBrightness: Brightness.dark,
-          ),
-        ),
-      ),
+      // appBar: PreferredSize(
+      //   preferredSize: const Size.fromHeight(5),
+      //   child: AppBar(
+      //     backgroundColor: Colors.red,
+      //     elevation: 0,
+      //     systemOverlayStyle: const SystemUiOverlayStyle(
+      //       statusBarBrightness: Brightness.dark,
+      //     ),
+      //   ),
+      // ),
       body: Stack(
         children: [
           // Background circles
@@ -221,7 +221,51 @@ class HomeScreen extends StatelessWidget {
                             ],
                           );
                         } else {
-                          return Container();
+                          return  Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.deepPurple.withOpacity(0.3),
+                                      Colors.orangeAccent.withOpacity(0.3),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: TextField(
+                                  controller: _cityController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.transparent,
+                                    hintText: 'Enter city name',
+                                    hintStyle: const TextStyle(color: Colors.white54),
+                                    labelStyle: const TextStyle(color: Colors.white54),
+                                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      borderSide: const BorderSide(color: Colors.black),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(color: Colors.white),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        vertical: 10, horizontal: 5),
+                                  ),
+                                  onSubmitted: (cityName) {
+                                    context
+                                        .read<WeatherBloc>()
+                                        .add(FetchWeatherByCity(cityName));
+                                  },
+                                ),
+                              ),
+                              Height(20),
+                              Text("City not Found ",style: CustomText.header(),),
+                            ],
+                          );
                         }
                       },
                     ),
