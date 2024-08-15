@@ -1,13 +1,31 @@
-import'package:flutter_bloc/flutter_bloc.dart';
-abstract class AuthenticationEvent {
-   const AuthenticationEvent();
-   List<Object> get props => [];
-}
-class SignUpuser  extends AuthenticationEvent{
-  final String email ;
-  final  String password;
-  const SignUpuser (this.email,this.password);
+import 'package:equatable/equatable.dart';
+
+// Define Authentication Events
+abstract class AuthenticationEvent extends Equatable {
+  const AuthenticationEvent();
+
   @override
-  List<Object> get props =>[email,password];
+  List<Object> get props => [];
 }
-class SignOut extends AuthenticationEvent{}
+
+// Event for signing up a user
+class SignUpUser extends AuthenticationEvent {
+  final String email;
+  final String password;
+
+  const SignUpUser({required this.email, required this.password});
+
+  @override
+  List<Object> get props => [email, password];
+}
+class SigninUser extends AuthenticationEvent {
+  final String email;
+  final String password;
+
+  SigninUser({required this.email, required this.password});
+
+  @override
+  List<Object> get props => [email, password];
+}
+// Event for signing out a user
+class SignOut extends AuthenticationEvent {}

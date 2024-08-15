@@ -10,18 +10,18 @@ import '../Data/data.dart';
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   WeatherBloc() : super(WeatherInitial()) {
     on<FetchWeatherByCity>((event, emit) async {
-      emit(Weatherloading());
+      emit(WeatherLoading());
       try {
         WeatherFactory wf = WeatherFactory(API_KEY, language: Language.ENGLISH);
         Weather weather = await wf.currentWeatherByCityName(event.cityName);
         emit(WeatherSuccess(weather));
       } catch (e) {
-        emit(WeatherBlocFailure());
+        emit(WeatherFailure());
       }
     });
 
     on<FetchWeather>((event, emit) async {
-      emit(Weatherloading());
+      emit(WeatherLoading());
       try {
         WeatherFactory wf = WeatherFactory(API_KEY, language: Language.ENGLISH);
         Weather weather = await wf.currentWeatherByLocation(
@@ -29,7 +29,7 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
         );
         emit(WeatherSuccess(weather));
       } catch (e) {
-        emit(WeatherBlocFailure());
+        emit(WeatherFailure());
       }
     });
 
@@ -39,4 +39,3 @@ class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
     });
   }
 }
-

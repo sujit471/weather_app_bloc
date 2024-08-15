@@ -1,75 +1,72 @@
-import 'dart:ui';
-
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:lottie/lottie.dart';
-import 'package:weather_app_bloc/constants/custom_text.dart';
-import 'Screens/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'Screens/login_screen.dart';
+import 'Screens/signup.dart';
 import 'bloc/weather_bloc.dart';
 import 'bloc/weather_event.dart';
-
-void main() {
+import 'bloc/authentication/authentication_bloc.dart';
+import 'bloc/authentication/authentication_state.dart';
+import 'services/authentication.dart';
+import 'Screens/home_screen.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options:const FirebaseOptions( apiKey: 'AIzaSyCQWSMh_VZ4wUQQ5oqGfoSFCgBrF8OpZPs',
+        appId: '1:606114221907:android:a871018835c874957b1ba6', messagingSenderId: 'messagingSenderId',
+        projectId: 'fir-login-b234a'
+    ),
+  );
   runApp(const MainApp());
 }
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthenticationBloc(authService: AuthService()),
+        ),
+        BlocProvider(
+          create: (context) => WeatherBloc(),
+        ),
+      ],
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: FutureBuilder(
-            future: _determinePosition(),
-            builder: (context, snap) {
-              if(snap.hasData) {
-                return BlocProvider<WeatherBloc>(
-                  create: (context) => WeatherBloc()..add(
-                      FetchWeather(snap.data as Position)
-                  ),
-                  child: const HomeScreen(),
-                );
-              } else {
-                return  Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    DefaultTextStyle(
-                      style: const TextStyle(
-
-                        fontSize: 20.0,
-                        color: Colors.white,
-                        fontFamily: 'Agne',
-                      ),
-                      child: AnimatedTextKit(
-                        animatedTexts: [
-                          TypewriterAnimatedText('Welcome to  Weather App '),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Lottie.asset(
-                        'assets/weather.json',  // Path to your Lottie animation
-                        width: 200,
-                        height: 200,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ],
-                );
-              }
+        home: BlocConsumer<AuthenticationBloc, AuthenticationState>(
+          listener: (context, state) async {
+            if (state is AuthenticationSuccess) {
+              Position position = await _determinePosition();
+              context.read<WeatherBloc>().add(FetchWeather(position));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              );
             }
-        )
+          },
+          builder: (context, state) {
+            if (state is AuthenticationInitial || state is AuthenticationLoadingState) {
+              return const LoginScreen();
+            } else if (state is AuthenticationError) {
+              return const LoginScreen();
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
+        ),
+      ),
     );
   }
 }
+
 /// Determine the current position of the device.
-///
-/// When the location services are not enabled or permissions
-/// are denied the `Future` will return an error.
 Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
+
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
     return Future.error('Location services are disabled.');
@@ -84,9 +81,9 @@ Future<Position> _determinePosition() async {
   }
 
   if (permission == LocationPermission.deniedForever) {
-
     return Future.error(
         'Location permissions are permanently denied, we cannot request permissions.');
   }
+
   return await Geolocator.getCurrentPosition();
 }

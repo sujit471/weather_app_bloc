@@ -92,11 +92,36 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                     child: BlocBuilder<WeatherBloc, WeatherState>(
                       builder: (context, state) {
                         if (state is WeatherInitial) {
-                          return const Center(
-                            // child: CircularProgressIndicator(),
-                            child: Text("Welcome to Weather App "),
+                          return  Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                DefaultTextStyle(
+                                  style: const TextStyle(
+
+                                    fontSize: 20.0,
+                                    color: Colors.white,
+                                    fontFamily: 'Agne',
+                                  ),
+                                  child: AnimatedTextKit(
+                                    animatedTexts: [
+                                      TypewriterAnimatedText('Welcome Back'),
+                                    ],
+                                  ),
+                                ),
+                                Center(
+                                  child: Lottie.asset(
+                                    'assets/weather.json',  // Path to your Lottie animation
+                                    width: 200,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
-                        } else if (state is Weatherloading) {
+                        } else if (state is WeatherLoading) {
                           return Column(
                             children: [
                               Center(
