@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app_bloc/Screens/signup.dart';
@@ -9,20 +10,36 @@ import 'home_screen.dart';
 class LoginScreen extends StatefulWidget {
   static String id = 'login_screen';
   const LoginScreen({Key? key}) : super(key: key);
-
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final User ? user  = FirebaseAuth.instance.currentUser;
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  @override
+  void initState(){
+    super.initState();
+    printIdToken();
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+
+  }
+  Future<void> printIdToken() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String? idToken = await user.getIdToken();
+      print("ID Token: $idToken");
+    } else {
+      print("User is not logged in.");
+    }
   }
 
   @override
@@ -92,11 +109,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white, backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      minimumSize: Size(4, 4),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 5, // Shadow elevation
+                    ),
                     child: Text(
                       state is AuthenticationLoadingState
                           ? 'Logging In...'
                           : 'Login',
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 20,color: Colors.black),
                     ),
                   ),
                 );

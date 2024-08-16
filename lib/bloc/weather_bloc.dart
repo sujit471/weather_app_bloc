@@ -5,8 +5,6 @@ import 'package:weather_app_bloc/bloc/weather_event.dart';
 import 'package:weather_app_bloc/bloc/weather_state.dart';
 import '../Data/data.dart';
 
-// weather_bloc.dart
-
 class WeatherBloc extends Bloc<WeatherEvent, WeatherState> {
   WeatherBloc() : super(WeatherInitial()) {
     on<FetchWeatherByCity>((event, emit) async {

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app_bloc/Screens/login_screen.dart';
 import '../bloc/authentication/authentication_bloc.dart';
 import '../bloc/authentication/authentication_event.dart';
 import '../bloc/authentication/authentication_state.dart';
-import 'home_screen.dart';
+
 class SignupScreen extends StatefulWidget {
   static String id = 'signup_screen';
   const SignupScreen({Key? key}) : super(key: key);
@@ -62,13 +61,7 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 20),
             BlocConsumer<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
-                if (state is AuthenticationSuccess) {
-                  // Navigate to HomeScreen on success
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
-                } else if (state is AuthenticationError) {
+                if (state is AuthenticationError) {
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -77,6 +70,29 @@ class _SignupScreenState extends State<SignupScreen> {
                       );
                     },
                   );
+                }
+                else if (state is SignUpSuccess){
+                  showDialog(context: context, builder: (context){
+                    return  AlertDialog(
+
+                      title: Text('User Creation'),
+                      content: Text('Welcome to the app '),
+                      backgroundColor: const Color(0xFFEFEFEF),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: Colors.green, width: 2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text('Ok'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+
+                    );
+                  });
                 }
               },
               builder: (context, state) {
@@ -94,7 +110,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                     child: Text(
                       state is AuthenticationLoadingState
-                          ? 'Signing Up...'
+                          ? 'Signing UP.'
                           : 'Sign Up',
                       style: const TextStyle(fontSize: 20),
                     ),
@@ -109,7 +125,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 const Text("Already have an account? "),
                 GestureDetector(
                   onTap: () {
-                   Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
+                    Navigator.pop(context); // Only navigate back to the login screen
                   },
                   child: const Text(
                     'Login',
@@ -124,4 +140,3 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 }
-

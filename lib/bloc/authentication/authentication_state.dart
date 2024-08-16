@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/user_model.dart';
 
 // Define Authentication States
@@ -36,4 +37,9 @@ class AuthenticationError extends AuthenticationState {
 
   @override
   List<Object> get props => [message];
+}
+
+class SignUpSuccess extends AuthenticationState{
+final UserModel user ;
+SignUpSuccess(this.user);
 }

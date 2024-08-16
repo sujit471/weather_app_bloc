@@ -14,11 +14,14 @@ import '../widgets/items_in_row.dart';
 import '../widgets/weather_icon.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
+
   String formatTime(DateTime dateTime) {
     return DateFormat('hh:mm a').format(dateTime);
   }
+
   @override
   Widget build(BuildContext context) {
     TextEditingController _cityController = TextEditingController();
@@ -27,10 +30,12 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.black,
-appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
-    child: AppBar(
-      backgroundColor: Colors.black,
-    )),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(5),
+        child: AppBar(
+          backgroundColor: Colors.black,
+        ),
+      ),
       body: Stack(
         children: [
           Positioned(
@@ -92,34 +97,32 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                     child: BlocBuilder<WeatherBloc, WeatherState>(
                       builder: (context, state) {
                         if (state is WeatherInitial) {
-                          return  Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                DefaultTextStyle(
-                                  style: const TextStyle(
-
-                                    fontSize: 20.0,
-                                    color: Colors.white,
-                                    fontFamily: 'Agne',
-                                  ),
-                                  child: AnimatedTextKit(
-                                    animatedTexts: [
-                                      TypewriterAnimatedText('Welcome Back'),
-                                    ],
-                                  ),
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Height(150),
+                              DefaultTextStyle(
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  color: Colors.white,
+                                  fontFamily: 'Agne',
                                 ),
-                                Center(
-                                  child: Lottie.asset(
-                                    'assets/weather.json',  // Path to your Lottie animation
-                                    width: 200,
-                                    height: 200,
-                                    fit: BoxFit.cover,
-                                  ),
+                                child: AnimatedTextKit(
+                                  animatedTexts: [
+                                    TypewriterAnimatedText('Welcome Back'),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              Center(
+                                child: Lottie.asset(
+                                  'assets/weather.json',  // Path to your Lottie animation
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
                           );
                         } else if (state is WeatherLoading) {
                           return Column(
@@ -131,17 +134,17 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                                 ),
                               ),
                               Height(90),
-                             DefaultTextStyle(
-                              style: const TextStyle(
-                              fontSize: 30.0,
-                              color: Colors.white,
-                              fontFamily: 'Agne',
-                              ),
-                              child: AnimatedTextKit(
-                              animatedTexts: [
-                              TypewriterAnimatedText('Searching.....'),
-                              ],
-                              ),
+                              DefaultTextStyle(
+                                style: const TextStyle(
+                                  fontSize: 30.0,
+                                  color: Colors.white,
+                                  fontFamily: 'Agne',
+                                ),
+                                child: AnimatedTextKit(
+                                  animatedTexts: [
+                                    TypewriterAnimatedText('Searching.....'),
+                                  ],
+                                ),
                               ),
                             ],
                           );
@@ -195,8 +198,9 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                               ),
                               Height(10),
                               Center(
-                                  child: getWeatherIcon(
-                                      state.weather.weatherConditionCode!)),
+                                child: getWeatherIcon(
+                                    state.weather.weatherConditionCode!),
+                              ),
                               Height(10),
                               Center(
                                 child: Text(
@@ -251,34 +255,38 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                                 ],
                               ),
                               Height(20),
-                               Row(
-                                 children: [
-                                   WeatherCard(state: '${state.weather.humidity} g/kg',
-                                     name: 'humidity',
-                                     icon: Icons.cloud,
-                                     color: Colors.grey,
-                                     size: 50,
-                                   ),
+                              Row(
+                                children: [
+                                  WeatherCard(
+                                    state: '${state.weather.humidity} g/kg',
+                                    name: 'humidity',
+                                    icon: Icons.cloud,
+                                    color: Colors.grey,
+                                    size: 50,
+                                  ),
                                   Width(20),
-                                   WeatherCard(state: '${state.weather.tempFeelsLike}',
-                                     name: 'Feels Like',
-                                     icon: Icons.sunny,
-                                     color: Colors.orange,
-                                     size: 40,
-                                   ),
-                                 ],
-                               ),
+                                  WeatherCard(
+                                    state: '${state.weather.tempFeelsLike}',
+                                    name: 'Feels Like',
+                                    icon: Icons.sunny,
+                                    color: Colors.orange,
+                                    size: 40,
+                                  ),
+                                ],
+                              ),
                               Height(20),
                               Row(
                                 children: [
-                                  WeatherCard(state: '${state.weather.pressure} Pa',
+                                  WeatherCard(
+                                    state: '${state.weather.pressure} Pa',
                                     name: 'Pressure',
                                     icon: Icons.access_time_outlined,
                                     color: Colors.red,
                                     size: 50,
                                   ),
                                   Width(20),
-                                  WeatherCard(state: '${state.weather.windSpeed} km/hr',
+                                  WeatherCard(
+                                    state: '${state.weather.windSpeed} km/hr',
                                     name: 'Wind',
                                     icon: Icons.flag_rounded,
                                     color: Colors.red,
@@ -289,14 +297,16 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                               Height(20),
                               Row(
                                 children: [
-                                  WeatherCard(state: '${state.weather.rainLast3Hours} ',
+                                  WeatherCard(
+                                    state: '${state.weather.rainLast3Hours} ',
                                     name: 'Rain Last 3 Hours',
                                     icon: Icons.grain,
                                     color: Colors.blue,
                                     size: 50,
                                   ),
                                   Width(20),
-                                  WeatherCard(state: '${state.weather.cloudiness} oktas',
+                                  WeatherCard(
+                                    state: '${state.weather.cloudiness} oktas',
                                     name: 'Cloudiness',
                                     icon: Icons.flag_rounded,
                                     color: Colors.red,
@@ -307,7 +317,7 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                             ],
                           );
                         } else {
-                          return  Column(
+                          return Column(
                             children: [
                               Container(
                                 decoration: BoxDecoration(
@@ -348,8 +358,18 @@ appBar: PreferredSize( preferredSize: const Size.fromHeight(5),
                                   },
                                 ),
                               ),
-                              Height(20),
-                              Text("City not Found ",style: CustomText.header(),),
+                              Height(30),
+                              Center(
+                                child: Lottie.asset(
+                                  'assets/error.json',
+                                  height: 200,
+                                ),
+                              ),
+                              Height(30),
+                              Text(
+                                'Something went wrong!',
+                                style: CustomText.subheader(),
+                              ),
                             ],
                           );
                         }
