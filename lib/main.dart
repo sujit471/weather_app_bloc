@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'Screens/login_screen.dart';
+import 'Screens/signin with google.dart';
 import 'Screens/signup.dart';
 import 'bloc/weather_bloc.dart';
 import 'bloc/weather_event.dart';
@@ -39,7 +40,8 @@ class MainApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: BlocConsumer<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) async {
-            if (state is AuthenticationSuccess) {
+            // if(state is AuthenticationSuccess )
+            if (state.status == AuthStatus.success) {
               Position position = await _determinePosition();
               context.read<WeatherBloc>().add(FetchWeather(position));
               Navigator.pushReplacement(
@@ -49,10 +51,17 @@ class MainApp extends StatelessWidget {
             }
           },
           builder: (context, state) {
-            if (state is AuthenticationInitial || state is AuthenticationLoadingState) {
-              return const LoginScreen();
-            } else if (state is AuthenticationError) {
-              return const LoginScreen();
+            //  if (state is AuthenticationInitial || state is AuthenticationLoadingState) {
+            //               return const LoginScreen();
+            //             } else if (state is AuthenticationError) {
+            //               return const LoginScreen();
+            //             }
+            if (state.status == AuthStatus.initial || state.status == AuthStatus.isLoading) {
+            return const LoginScreen();
+            //  return   SignInWithGoogle();
+            } else if (state.status == AuthStatus.error) {
+            //  return  SignInWithGoogle();
+            return const LoginScreen();
             }
             return const Center(child: CircularProgressIndicator());
           },

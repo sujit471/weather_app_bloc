@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:weather_app_bloc/bloc/authentication/authentication_state.dart';
 
 // Define Authentication Events
 abstract class AuthenticationEvent extends Equatable {
@@ -29,3 +30,5 @@ class SigninUser extends AuthenticationEvent {
 }
 // Event for signing out a user
 class SignOut extends AuthenticationEvent {}
+
+class SignInWithGoogle extends AuthenticationEvent{}

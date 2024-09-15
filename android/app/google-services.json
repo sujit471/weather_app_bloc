@@ -12,7 +12,12 @@
           "package_name": "com.example.weather_app_bloc"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "606114221907-659m012v39orj2mhl1n6a9helnpogisn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCQWSMh_VZ4wUQQ5oqGfoSFCgBrF8OpZPs"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "606114221907-659m012v39orj2mhl1n6a9helnpogisn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

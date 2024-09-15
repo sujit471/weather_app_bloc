@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_app_bloc/Screens/signup.dart';
+import 'package:weather_app_bloc/services/authentication.dart';
 import '../bloc/authentication/authentication_bloc.dart';
 import '../bloc/authentication/authentication_event.dart';
 import '../bloc/authentication/authentication_state.dart';
@@ -15,14 +16,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final User ? user  = FirebaseAuth.instance.currentUser;
-
+  final User? user = FirebaseAuth.instance.currentUser;
+  final AuthService _auth = AuthService();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  User? _user;
   @override
-  void initState(){
+  void initState() {
     super.initState();
     printIdToken();
+    _user = _auth.currentUser;
   }
 
   @override
@@ -30,8 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
-
   }
+
   Future<void> printIdToken() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -80,12 +83,14 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
             BlocConsumer<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
-                if (state is AuthenticationSuccess) {
+                //if (state is AuthenticationSuccess)
+                if (state.status == AuthStatus.success) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const HomeScreen()),
                   );
-                } else if (state is AuthenticationError) {
+                  // else if ( state is AuthenticationError)
+                } else if (state.status == AuthStatus.error) {
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -110,8 +115,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: Colors.blue,
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0, vertical: 4.0),
                       minimumSize: Size(4, 4),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       shape: RoundedRectangleBorder(
@@ -120,14 +127,40 @@ class _LoginScreenState extends State<LoginScreen> {
                       elevation: 5, // Shadow elevation
                     ),
                     child: Text(
-                      state is AuthenticationLoadingState
+                      // state is AuthenticationLoadingState
+                      state.status == AuthStatus.isLoading
                           ? 'Logging In...'
                           : 'Login',
-                      style: const TextStyle(fontSize: 20,color: Colors.black),
+                      style: const TextStyle(fontSize: 20, color: Colors.black),
                     ),
                   ),
                 );
               },
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final user = await AuthService.signInWithGoogle();
+                  // mounted is used as it dont use the gaps between the buildcontext
+                  if (user != null && mounted) {
+                    Navigator.of(context).pushReplacement(MaterialPageRoute(
+                        builder: (context) => const HomeScreen()));
+                  }
+                } on FirebaseAuthException catch (error) {
+                  print(error.message);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(
+                      error.message ?? "Something went wrong ",
+                    ),
+                  ));
+                } catch (error) {
+                  print(error);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(error.toString()),
+                  ));
+                }
+              },
+              child: Text("Sign in with google"),
             ),
             const SizedBox(height: 20),
             Row(
@@ -136,7 +169,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 const Text("Don't have an account? "),
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupScreen()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SignupScreen()));
                   },
                   child: const Text(
                     'Sign Up',

@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../bloc/authentication/authentication_bloc.dart';
 import '../bloc/authentication/authentication_event.dart';
 import '../bloc/authentication/authentication_state.dart';
@@ -15,6 +17,26 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+  Future<void> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
+
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      // Use the user object for further operations or navigate to a new screen.
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
 
   @override
   void dispose() {
@@ -61,7 +83,8 @@ class _SignupScreenState extends State<SignupScreen> {
             const SizedBox(height: 20),
             BlocConsumer<AuthenticationBloc, AuthenticationState>(
               listener: (context, state) {
-                if (state is AuthenticationError) {
+                // if(sate is Authenticationerror )
+                if (state.status == AuthStatus.error) {
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -71,7 +94,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   );
                 }
-                else if (state is SignUpSuccess){
+                // else if  SignUpSuccess
+                else if (state.status == AuthStatus.success){
                   showDialog(context: context, builder: (context){
                     return  AlertDialog(
 
@@ -109,7 +133,8 @@ class _SignupScreenState extends State<SignupScreen> {
                       );
                     },
                     child: Text(
-                      state is AuthenticationLoadingState
+                      // state is AuthenicationLoadingState
+                      state.status == AuthStatus.isLoading
                           ? 'Signing UP.'
                           : 'Sign Up',
                       style: const TextStyle(fontSize: 20),
@@ -118,6 +143,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 );
               },
             ),
+
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

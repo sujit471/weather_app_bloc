@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:weather_app_bloc/bloc/weather_bloc.dart';
 import 'package:weather_app_bloc/bloc/weather_state.dart';
+import 'package:weather_app_bloc/services/authentication.dart';
 import 'package:weather_app_bloc/widgets/weather_card.dart';
 import '../Constants/space.dart';
 import '../bloc/weather_event.dart';
@@ -14,6 +16,8 @@ import '../widgets/items_in_row.dart';
 import '../widgets/weather_icon.dart';
 import 'package:lottie/lottie.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../Screens/login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,11 +26,35 @@ class HomeScreen extends StatelessWidget {
     return DateFormat('hh:mm a').format(dateTime);
   }
 
+void signOut(BuildContext context) async {
+  try {
+    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    await FirebaseAuth.instance.signOut();
+    await _googleSignIn.signOut(); // Sign out from Google as well
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  } catch (e) {
+    print('Sign out failed: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to sign out: $e'),
+      ),
+    );
+  }
+}
+
+
   @override
   Widget build(BuildContext context) {
     TextEditingController _cityController = TextEditingController();
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('yyyy-MM-dd – kk:mm').format(now);
+    final GoogleSignIn _googleSignIn = GoogleSignIn();
+    final AuthService auth = AuthService();
+    bool _isLoggedIn = false;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -96,7 +124,7 @@ class HomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(16.0),
                     child: BlocBuilder<WeatherBloc, WeatherState>(
                       builder: (context, state) {
-                        if (state is WeatherInitial) {
+                        if (state.status == WeatherStatus.initial) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -116,15 +144,20 @@ class HomeScreen extends StatelessWidget {
                               ),
                               Center(
                                 child: Lottie.asset(
-                                  'assets/weather.json',  // Path to your Lottie animation
+                                  'assets/weather.json', // Path to your Lottie animation
                                   width: 200,
                                   height: 200,
                                   fit: BoxFit.cover,
                                 ),
                               ),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    signOut(context);
+                                  },
+                                  child: Text("Sign out")),
                             ],
                           );
-                        } else if (state is WeatherLoading) {
+                        } else if (state.status == WeatherStatus.loading) {
                           return Column(
                             children: [
                               Center(
@@ -148,7 +181,7 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ],
                           );
-                        } else if (state is WeatherSuccess) {
+                        } else if (state.status == WeatherStatus.success) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -170,16 +203,21 @@ class HomeScreen extends StatelessWidget {
                                     filled: true,
                                     fillColor: Colors.transparent,
                                     hintText: 'Enter city name',
-                                    hintStyle: const TextStyle(color: Colors.white54),
-                                    labelStyle: const TextStyle(color: Colors.white54),
-                                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white54),
+                                    labelStyle:
+                                        const TextStyle(color: Colors.white54),
+                                    prefixIcon: const Icon(Icons.search,
+                                        color: Colors.white54),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20),
-                                      borderSide: const BorderSide(color: Colors.black),
+                                      borderSide:
+                                          const BorderSide(color: Colors.black),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Colors.white),
+                                      borderSide:
+                                          const BorderSide(color: Colors.white),
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 5),
@@ -193,25 +231,25 @@ class HomeScreen extends StatelessWidget {
                               ),
                               Height(30),
                               Text(
-                                'Location 📍: ${state.weather.areaName}',
+                                'Location 📍: ${state.weather!.areaName}',
                                 style: CustomText.subheader(),
                               ),
                               Height(10),
                               Center(
                                 child: getWeatherIcon(
-                                    state.weather.weatherConditionCode!),
+                                    state.weather!.weatherConditionCode!),
                               ),
                               Height(10),
                               Center(
                                 child: Text(
-                                  '${state.weather.temperature}',
+                                  '${state.weather!.temperature}',
                                   style: CustomText.header(),
                                 ),
                               ),
                               Height(10),
                               Center(
                                 child: Text(
-                                  '${state.weather.weatherMain}',
+                                  '${state.weather!.weatherMain}',
                                   style: CustomText.header(),
                                 ),
                               ),
@@ -224,15 +262,16 @@ class HomeScreen extends StatelessWidget {
                               ),
                               Height(100),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   ItemsInRow(
-                                    text: formatTime(state.weather.sunrise!),
+                                    text: formatTime(state.weather!.sunrise!),
                                     image: 'assets/11.png',
                                     time: 'Sunrise',
                                   ),
                                   ItemsInRow(
-                                    text: formatTime(state.weather.sunset!),
+                                    text: formatTime(state.weather!.sunset!),
                                     image: 'assets/12.png',
                                     time: 'Sunset',
                                   ),
@@ -240,15 +279,16 @@ class HomeScreen extends StatelessWidget {
                               ),
                               Height(20),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   ItemsInRow(
-                                    text: '${state.weather.tempMax}',
+                                    text: '${state.weather!.tempMax}',
                                     image: 'assets/13.png',
                                     time: 'Max Temp',
                                   ),
                                   ItemsInRow(
-                                    text: '${state.weather.tempMin}',
+                                    text: '${state.weather!.tempMin}',
                                     image: 'assets/14.png',
                                     time: 'Min temp',
                                   ),
@@ -258,7 +298,7 @@ class HomeScreen extends StatelessWidget {
                               Row(
                                 children: [
                                   WeatherCard(
-                                    state: '${state.weather.humidity} g/kg',
+                                    state: '${state.weather!.humidity} g/kg',
                                     name: 'humidity',
                                     icon: Icons.cloud,
                                     color: Colors.grey,
@@ -266,7 +306,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   Width(20),
                                   WeatherCard(
-                                    state: '${state.weather.tempFeelsLike}',
+                                    state: '${state.weather!.tempFeelsLike}',
                                     name: 'Feels Like',
                                     icon: Icons.sunny,
                                     color: Colors.orange,
@@ -278,7 +318,7 @@ class HomeScreen extends StatelessWidget {
                               Row(
                                 children: [
                                   WeatherCard(
-                                    state: '${state.weather.pressure} Pa',
+                                    state: '${state.weather!.pressure} Pa',
                                     name: 'Pressure',
                                     icon: Icons.access_time_outlined,
                                     color: Colors.red,
@@ -286,7 +326,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   Width(20),
                                   WeatherCard(
-                                    state: '${state.weather.windSpeed} km/hr',
+                                    state: '${state.weather!.windSpeed} km/hr',
                                     name: 'Wind',
                                     icon: Icons.flag_rounded,
                                     color: Colors.red,
@@ -298,7 +338,7 @@ class HomeScreen extends StatelessWidget {
                               Row(
                                 children: [
                                   WeatherCard(
-                                    state: '${state.weather.rainLast3Hours} ',
+                                    state: '${state.weather!.rainLast3Hours} ',
                                     name: 'Rain Last 3 Hours',
                                     icon: Icons.grain,
                                     color: Colors.blue,
@@ -306,7 +346,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   Width(20),
                                   WeatherCard(
-                                    state: '${state.weather.cloudiness} oktas',
+                                    state: '${state.weather!.cloudiness} oktas',
                                     name: 'Cloudiness',
                                     icon: Icons.flag_rounded,
                                     color: Colors.red,
@@ -337,16 +377,21 @@ class HomeScreen extends StatelessWidget {
                                     filled: true,
                                     fillColor: Colors.transparent,
                                     hintText: 'Enter city name',
-                                    hintStyle: const TextStyle(color: Colors.white54),
-                                    labelStyle: const TextStyle(color: Colors.white54),
-                                    prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                                    hintStyle:
+                                        const TextStyle(color: Colors.white54),
+                                    labelStyle:
+                                        const TextStyle(color: Colors.white54),
+                                    prefixIcon: const Icon(Icons.search,
+                                        color: Colors.white54),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(20),
-                                      borderSide: const BorderSide(color: Colors.black),
+                                      borderSide:
+                                          const BorderSide(color: Colors.black),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(color: Colors.white),
+                                      borderSide:
+                                          const BorderSide(color: Colors.white),
                                     ),
                                     contentPadding: const EdgeInsets.symmetric(
                                         vertical: 10, horizontal: 5),
@@ -359,15 +404,15 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                               Height(30),
-                              Center(
-                                child: Lottie.asset(
-                                  'assets/error.json',
-                                  height: 200,
-                                ),
-                              ),
+                              // Center(
+                              //   child: Lottie.asset(
+                              //     'assets/error.json',
+                              //     height: 200,
+                              //   ),
+                              // ),
                               Height(30),
                               Text(
-                                'Something went wrong!',
+                                'The City name is not correct ',
                                 style: CustomText.subheader(),
                               ),
                             ],
